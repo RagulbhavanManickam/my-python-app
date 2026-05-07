@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+.git/
+.env
+*.md
+Jenkinsfile
+deploy.yml
+rollback.yml
+inventory.ini
