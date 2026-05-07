@@ -1,0 +1,75 @@
+---
+- name: Deploy Python App Container
+  hosts: production
+  become: yes
+
+  vars:
+    registry:       "ragulbhavanmanickam"
+    image_name:     "my-python-app"
+    container_name: "my-python-app"
+
+  tasks:
+
+    - name: Install Docker and Python Docker SDK
+      apt:
+        name:
+          - docker.io
+          - python3-docker
+        state: present
+        update_cache: yes
+
+    - name: Start Docker service
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Log in to Docker Hub
+      docker_login:
+        username: "{{ docker_user }}"
+        password: "{{ docker_pass }}"
+      no_log: true
+
+    - name: Pull new Docker image
+      docker_image:
+        name: "{{ registry }}/{{ image_name }}"
+        tag: "{{ image_tag }}"
+        source: pull
+        force_source: yes
+
+    - name: Stop existing container
+      docker_container:
+        name: "{{ container_name }}"
+        state: stopped
+      ignore_errors: yes
+
+    - name: Remove existing container
+      docker_container:
+        name: "{{ container_name }}"
+        state: absent
+      ignore_errors: yes
+
+    - name: Start new container
+      docker_container:
+        name: "{{ container_name }}"
+        image: "{{ registry }}/{{ image_name }}:{{ image_tag }}"
+        state: started
+        restart_policy: always
+        ports:
+          - "8000:8000"
+        env:
+          APP_ENV: "production"
+
+    - name: Verify container is running
+      docker_container_info:
+        name: "{{ container_name }}"
+      register: container_info
+
+    - name: Fail if container not running
+      fail:
+        msg: "Container failed to start!"
+      when: not container_info.container.State.Running
+
+    - name: Confirm deployment
+      debug:
+        msg: "✅ Successfully deployed {{ image_name }}:{{ image_tag }}"
