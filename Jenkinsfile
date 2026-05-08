@@ -17,7 +17,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 git branch: 'main',
-                    credentialsId: 'github-creds',
+                    credentialsId: 'github-creds1',
                     url: 'https://github.com/RagulbhavanManickam/my-python-app.git'
                 echo "✅ Code cloned — Build #${BUILD_NUMBER}"
             }
