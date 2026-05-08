@@ -4,7 +4,7 @@ app = FastAPI()
 
 @app.get("/")
 def root():
-    return {"message": "Hello from Python CI/CD Pipeline! v2"}
+    return {"message": "Hello from Python CI/CD Pipeline! v3"}
 
 @app.get("/health")
 def health():
