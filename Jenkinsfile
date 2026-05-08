@@ -68,11 +68,12 @@ pipeline {
                     )
                 ]) {
                     sh """
+                        cp \$SSH_KEY /tmp/ansible_key
+                        chmod 600 /tmp/ansible_key
                         ansible-playbook -i inventory.ini deploy.yml \
-                            --private-key=\$SSH_KEY \
-                            --extra-vars "image_tag=${BUILD_NUMBER} \
-                                          docker_user=\$DOCKER_USER \
-                                          docker_pass=\$DOCKER_PASS"
+                            --private-key=/tmp/ansible_key \
+                            --extra-vars "image_tag=${BUILD_NUMBER} docker_user=\$DOCKER_USER docker_pass=\$DOCKER_PASS"
+                        rm -f /tmp/ansible_key
                     """
                 }
                 echo "✅ Deployed via Ansible"
